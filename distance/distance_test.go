@@ -169,3 +169,73 @@ func TestNormalize_ZeroVector(t *testing.T) {
 		}
 	}
 }
+
+func TestDistanceFunctions_LargeDim(t *testing.T) {
+	dim := 4096
+	a := makeRandomVec(dim, 42)
+	b := makeRandomVec(dim, 123)
+	got := DotProduct(a, b)
+	want := dotProductScalar(a, b)
+	relErr := math.Abs(float64(got-want)) / (math.Abs(float64(want)) + 1e-10)
+	if relErr > 1e-3 {
+		t.Errorf("DotProduct(dim=%d) relErr = %e, got=%f want=%f", dim, relErr, got, want)
+	}
+}
+
+func TestDistanceFunctions_SingleElement(t *testing.T) {
+	a := []float32{3.5}
+	b := []float32{2.0}
+	if got := DotProduct(a, b); math.Abs(float64(got-7.0)) > 1e-6 {
+		t.Errorf("DotProduct([3.5],[2.0]) = %f, want 7.0", got)
+	}
+	if got := L2Distance(a, b); math.Abs(float64(got-1.5)) > 1e-6 {
+		t.Errorf("L2Distance([3.5],[2.0]) = %f, want 1.5", got)
+	}
+}
+
+func BenchmarkDotProduct_Dim(b *testing.B) {
+	for _, dim := range []int{128, 256, 384, 768, 1536} {
+		a := makeRandomVec(dim, 1)
+		c := makeRandomVec(dim, 2)
+		b.Run(fmt.Sprintf("dim%d", dim), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				_ = DotProduct(a, c)
+			}
+		})
+	}
+}
+
+func BenchmarkCosineSimilarity_Dim(b *testing.B) {
+	for _, dim := range []int{128, 384, 768, 1536} {
+		a := makeRandomVec(dim, 1)
+		c := makeRandomVec(dim, 2)
+		b.Run(fmt.Sprintf("dim%d", dim), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				_ = CosineSimilarity(a, c)
+			}
+		})
+	}
+}
+
+func BenchmarkL2Distance_Dim(b *testing.B) {
+	for _, dim := range []int{128, 384, 768, 1536} {
+		a := makeRandomVec(dim, 1)
+		c := makeRandomVec(dim, 2)
+		b.Run(fmt.Sprintf("dim%d", dim), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				_ = L2Distance(a, c)
+			}
+		})
+	}
+}
+
+func BenchmarkNormalize_Dim(b *testing.B) {
+	for _, dim := range []int{128, 768, 1536} {
+		v := makeRandomVec(dim, 1)
+		b.Run(fmt.Sprintf("dim%d", dim), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				Normalize(v)
+			}
+		})
+	}
+}
