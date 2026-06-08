@@ -1,7 +1,9 @@
 package distance
 
 import (
+	"fmt"
 	"math"
+	"math/rand/v2"
 	"testing"
 )
 
@@ -86,5 +88,84 @@ func TestScalarNormalizeZero(t *testing.T) {
 	normScalar(v)
 	if math.IsNaN(float64(v[0])) {
 		t.Error("Normalize on zero vector produced NaN")
+	}
+}
+
+func makeRandomVec(n int, seed int64) []float32 {
+	r := rand.New(rand.NewPCG(uint64(seed), uint64(seed)*7+1))
+	v := make([]float32, n)
+	for i := range v {
+		v[i] = float32(r.NormFloat64())
+	}
+	return v
+}
+
+func TestDotProduct_MatchesScalar(t *testing.T) {
+	for _, dim := range []int{1, 4, 7, 8, 15, 16, 31, 32, 64, 128, 256, 768, 1536} {
+		t.Run(fmt.Sprintf("dim%d", dim), func(t *testing.T) {
+			a := makeRandomVec(dim, 42)
+			b := makeRandomVec(dim, 123)
+			got := DotProduct(a, b)
+			want := dotProductScalar(a, b)
+			if math.Abs(float64(got-want)) > float64(math.Abs(float64(want)))*1e-4+1e-6 {
+				t.Errorf("DotProduct(dim=%d) = %f, scalar = %f", dim, got, want)
+			}
+		})
+	}
+}
+
+func TestL2Squared_MatchesScalar(t *testing.T) {
+	for _, dim := range []int{1, 4, 7, 8, 15, 16, 64, 256, 768, 1536} {
+		t.Run(fmt.Sprintf("dim%d", dim), func(t *testing.T) {
+			a := makeRandomVec(dim, 42)
+			b := makeRandomVec(dim, 123)
+			got := L2Squared(a, b)
+			want := l2SquaredScalar(a, b)
+			if math.Abs(float64(got-want)) > float64(math.Abs(float64(want)))*1e-4+1e-6 {
+				t.Errorf("L2Squared(dim=%d) = %f, scalar = %f", dim, got, want)
+			}
+		})
+	}
+}
+
+func TestCosineSimilarity_MatchesScalar(t *testing.T) {
+	for _, dim := range []int{4, 8, 16, 64, 256, 768, 1536} {
+		t.Run(fmt.Sprintf("dim%d", dim), func(t *testing.T) {
+			a := makeRandomVec(dim, 42)
+			b := makeRandomVec(dim, 123)
+			got := CosineSimilarity(a, b)
+			want := cosineScalar(a, b)
+			if math.Abs(float64(got-want)) > 1e-4 {
+				t.Errorf("CosineSimilarity(dim=%d) = %f, scalar = %f", dim, got, want)
+			}
+		})
+	}
+}
+
+func TestNormalize_MatchesScalar(t *testing.T) {
+	for _, dim := range []int{4, 8, 16, 64, 256, 768, 1536} {
+		t.Run(fmt.Sprintf("dim%d", dim), func(t *testing.T) {
+			a := makeRandomVec(dim, 42)
+			b := make([]float32, dim)
+			copy(b, a)
+			Normalize(a)
+			normScalar(b)
+			for i := range a {
+				if math.Abs(float64(a[i]-b[i])) > 1e-5 {
+					t.Errorf("Normalize(dim=%d)[%d] = %f, scalar = %f", dim, i, a[i], b[i])
+					break
+				}
+			}
+		})
+	}
+}
+
+func TestNormalize_ZeroVector(t *testing.T) {
+	v := make([]float32, 16)
+	Normalize(v)
+	for i, x := range v {
+		if x != 0 {
+			t.Errorf("Normalize(zero)[%d] = %f, want 0", i, x)
+		}
 	}
 }
