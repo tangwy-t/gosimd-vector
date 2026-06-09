@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/distance"
 )
 
 func TestVectorStore_AddAndGet(t *testing.T) {

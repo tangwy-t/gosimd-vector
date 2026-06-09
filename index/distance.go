@@ -1,6 +1,6 @@
 package index
 
-import "github.com/gosimd-vector/gosimd-vector/distance"
+import "github.com/tangwy-t/gosimd-vector/distance"
 
 // distFn is the signature for internal distance functions (lower = closer).
 type distFn func(a, b []float32) float32

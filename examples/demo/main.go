@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
-	"github.com/gosimd-vector/gosimd-vector/search"
+	"github.com/tangwy-t/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/search"
 )
 
 func main() {

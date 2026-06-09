@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/distance"
 )
 
 func BenchmarkHNSW_Add(b *testing.B) {

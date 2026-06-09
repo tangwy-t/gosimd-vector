@@ -7,7 +7,7 @@ import (
 	"math"
 	"math/rand/v2"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/distance"
 )
 
 var magic = [4]byte{'G', 'S', 'V', '1'}

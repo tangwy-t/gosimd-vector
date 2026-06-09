@@ -1,4 +1,4 @@
-module github.com/gosimd-vector/gosimd-vector
+module github.com/tangwy-t/gosimd-vector
 
 go 1.26
 

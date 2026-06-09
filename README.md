@@ -1,6 +1,6 @@
 # gosimd-vector
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/gosimd-vector/gosimd-vector.svg)](https://pkg.go.dev/github.com/gosimd-vector/gosimd-vector)
+[![Go Reference](https://pkg.go.dev/badge/github.com/tangwy-t/gosimd-vector.svg)](https://pkg.go.dev/github.com/tangwy-t/gosimd-vector)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 基于 Go 1.26 `simd/archsimd` 的高性能向量检索引擎。零 CGO，纯 Go 实现。
@@ -24,8 +24,8 @@ export GOEXPERIMENT=simd
 
 ```go
 import (
-    "github.com/gosimd-vector/gosimd-vector/search"
-    "github.com/gosimd-vector/gosimd-vector/distance"
+    "github.com/tangwy-t/gosimd-vector/search"
+    "github.com/tangwy-t/gosimd-vector/distance"
 )
 
 // 创建搜索引擎

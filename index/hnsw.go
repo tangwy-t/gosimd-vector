@@ -6,7 +6,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/distance"
 )
 
 type Config struct {

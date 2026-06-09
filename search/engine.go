@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
-	"github.com/gosimd-vector/gosimd-vector/index"
+	"github.com/tangwy-t/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/index"
 )
 
 type SearchResult struct {

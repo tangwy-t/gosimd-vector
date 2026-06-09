@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/gosimd-vector/gosimd-vector/distance"
+	"github.com/tangwy-t/gosimd-vector/distance"
 )
 
 func TestHNSW_Serialize_RoundTrip(t *testing.T) {
