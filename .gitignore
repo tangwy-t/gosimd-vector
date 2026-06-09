@@ -1,0 +1,23 @@
+# compiled binaries
+*.exe
+*.test
+*.out
+
+# build output
+/tmp/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# benchmark output
+bench_results*
+
+# docs (internal planning documents)
+docs/
