@@ -178,6 +178,7 @@ func Load(r io.Reader) (*HNSW, error) {
 		Metric:         metric,
 		M:              int(mVal),
 		EfConstruction: int(efConstr),
+		EfSearch:       50,
 	}
 
 	graph := make([]map[int32][]int32, numLayers)
