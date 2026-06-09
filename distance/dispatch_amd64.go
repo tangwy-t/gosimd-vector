@@ -23,13 +23,13 @@ func init() {
 		dotProductImpl = dotProductAVX512
 		l2SquaredImpl = l2SquaredAVX512
 		l2Impl = l2AVX512
-		cosineImpl = cosineAVX512
+		cosineImpl = cosineFusedAVX512
 		normImpl = normAVX512
 	case hasAVX2:
 		dotProductImpl = dotProductAVX2
 		l2SquaredImpl = l2SquaredAVX2
 		l2Impl = l2AVX2
-		cosineImpl = cosineAVX2
+		cosineImpl = cosineFusedAVX2
 		normImpl = normAVX2
 	default:
 		dotProductImpl = dotProductScalar
@@ -162,6 +162,100 @@ func cosineAVX512(a, b []float32) float32 {
 		return 0
 	}
 	return dot / denom
+}
+
+func cosineFusedAVX2(a, b []float32) float32 {
+	n := len(a)
+	sumDot := archsimd.BroadcastFloat32x8(0)
+	sumA := archsimd.BroadcastFloat32x8(0)
+	sumB := archsimd.BroadcastFloat32x8(0)
+	i := 0
+	for ; i+8 <= n; i += 8 {
+		va := archsimd.LoadFloat32x8Slice(a[i:])
+		vb := archsimd.LoadFloat32x8Slice(b[i:])
+		sumDot = va.MulAdd(vb, sumDot)
+		sumA = va.MulAdd(va, sumA)
+		sumB = vb.MulAdd(vb, sumB)
+	}
+
+	loD, hiD := sumDot.GetLo(), sumDot.GetHi()
+	loA, hiA := sumA.GetLo(), sumA.GetHi()
+	loB, hiB := sumB.GetLo(), sumB.GetHi()
+
+	vd := loD.Add(hiD)
+	vaR := loA.Add(hiA)
+	vbR := loB.Add(hiB)
+	vd = vd.AddPairs(vd)
+	vd = vd.AddPairs(vd)
+	vaR = vaR.AddPairs(vaR)
+	vaR = vaR.AddPairs(vaR)
+	vbR = vbR.AddPairs(vbR)
+	vbR = vbR.AddPairs(vbR)
+
+	resultDot := vd.GetElem(0)
+	resultA := vaR.GetElem(0)
+	resultB := vbR.GetElem(0)
+	for ; i < n; i++ {
+		resultDot += a[i] * b[i]
+		resultA += a[i] * a[i]
+		resultB += b[i] * b[i]
+	}
+	denom := float32(math.Sqrt(float64(resultA))) * float32(math.Sqrt(float64(resultB)))
+	if denom == 0 {
+		return 0
+	}
+	return resultDot / denom
+}
+
+func cosineFusedAVX512(a, b []float32) float32 {
+	n := len(a)
+	sumDot := archsimd.BroadcastFloat32x16(0)
+	sumA := archsimd.BroadcastFloat32x16(0)
+	sumB := archsimd.BroadcastFloat32x16(0)
+	i := 0
+	for ; i+16 <= n; i += 16 {
+		va := archsimd.LoadFloat32x16Slice(a[i:])
+		vb := archsimd.LoadFloat32x16Slice(b[i:])
+		sumDot = va.MulAdd(vb, sumDot)
+		sumA = va.MulAdd(va, sumA)
+		sumB = vb.MulAdd(vb, sumB)
+	}
+
+	lo16D, hi16D := sumDot.GetLo(), sumDot.GetHi()
+	lo16A, hi16A := sumA.GetLo(), sumA.GetHi()
+	lo16B, hi16B := sumB.GetLo(), sumB.GetHi()
+
+	s8D := lo16D.Add(hi16D)
+	s8A := lo16A.Add(hi16A)
+	s8B := lo16B.Add(hi16B)
+
+	lo8D, hi8D := s8D.GetLo(), s8D.GetHi()
+	lo8A, hi8A := s8A.GetLo(), s8A.GetHi()
+	lo8B, hi8B := s8B.GetLo(), s8B.GetHi()
+
+	vd := lo8D.Add(hi8D)
+	vaR := lo8A.Add(hi8A)
+	vbR := lo8B.Add(hi8B)
+	vd = vd.AddPairs(vd)
+	vd = vd.AddPairs(vd)
+	vaR = vaR.AddPairs(vaR)
+	vaR = vaR.AddPairs(vaR)
+	vbR = vbR.AddPairs(vbR)
+	vbR = vbR.AddPairs(vbR)
+
+	resultDot := vd.GetElem(0)
+	resultA := vaR.GetElem(0)
+	resultB := vbR.GetElem(0)
+	for ; i < n; i++ {
+		resultDot += a[i] * b[i]
+		resultA += a[i] * a[i]
+		resultB += b[i] * b[i]
+	}
+	denom := float32(math.Sqrt(float64(resultA))) * float32(math.Sqrt(float64(resultB)))
+	if denom == 0 {
+		return 0
+	}
+	return resultDot / denom
 }
 
 func normAVX2(v []float32) {
