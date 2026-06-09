@@ -79,3 +79,14 @@ func (h *MaxHeap) Len() int {
 func (h *MaxHeap) Peek() candidate {
 	return h.data[0]
 }
+
+func (h *MaxHeap) toArray() []candidate {
+	out := make([]candidate, h.Len())
+	for i := range out {
+		out[i] = h.Pop()
+	}
+	for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
+		out[i], out[j] = out[j], out[i]
+	}
+	return out
+}
