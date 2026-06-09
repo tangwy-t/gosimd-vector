@@ -14,6 +14,7 @@ type Config struct {
 	Metric         distance.MetricType
 	M              int
 	EfConstruction int
+	EfSearch       int
 }
 
 type HNSW struct {
@@ -37,6 +38,9 @@ func NewHNSW(cfg Config) *HNSW {
 	}
 	if cfg.EfConstruction <= 0 {
 		cfg.EfConstruction = 200
+	}
+	if cfg.EfSearch <= 0 {
+		cfg.EfSearch = 50
 	}
 	return &HNSW{
 		cfg:        cfg,
@@ -245,7 +249,7 @@ func (h *HNSW) Remove(id int32) {
 }
 
 func (h *HNSW) Search(query []float32, topK int) []SearchResult {
-	return h.SearchWithEf(query, topK, h.cfg.EfConstruction)
+	return h.SearchWithEf(query, topK, h.cfg.EfSearch)
 }
 
 func (h *HNSW) SearchWithEf(query []float32, topK int, ef int) []SearchResult {
